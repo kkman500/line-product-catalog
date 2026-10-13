@@ -41,10 +41,6 @@ body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; bac
 .btn:active { transform:scale(.92); }
 .btn:disabled { opacity:.35; cursor:not-allowed; }
 .page-info { font-size:14px; color:#c8d0dc; text-align:center; min-width:96px; font-weight:600; }
-.thumbs { display:flex; gap:6px; margin-top:8px; overflow-x:auto; padding:2px; scrollbar-width:none; }
-.thumbs::-webkit-scrollbar { display:none; }
-.thumb { flex:none; min-width:56px; padding:8px 6px; background:#2c3340; border:2px solid transparent; border-radius:8px; cursor:pointer; font-size:11px; color:#c8d0dc; text-align:center; }
-.thumb.active { border-color:#ffd166; color:#ffd166; background:#232936; }
 .tap-hint { position:absolute; top:0; bottom:0; width:30%; z-index:5; opacity:.35; display:flex; align-items:center; justify-content:center; font-size:22px; color:#fff; pointer-events:none; }
 .tap-hint.left { left:0; }
 .tap-hint.right { right:0; }
@@ -2216,7 +2212,6 @@ body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; bac
     <span class="page-info" id="pageInfo">1 / 211</span>
     <button class="btn" id="nextBtn">&#8594;</button>
   </div>
-  <div class="thumbs" id="thumbs"></div>
   <div class="hint">左右滑动翻页 · 点击两侧翻页 · 目录搜索跳转 · 扫码：相机扫描产品条码直达</div>
 </div>
 <div class="toast" id="toast"></div>
@@ -2251,7 +2246,6 @@ body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; bac
   var topCode = document.getElementById('topCode');
   var prevBtn = document.getElementById('prevBtn');
   var nextBtn = document.getElementById('nextBtn');
-  var thumbsWrap = document.getElementById('thumbs');
   var tocOverlay = document.getElementById('tocOverlay');
   var tocBody = document.getElementById('tocBody');
   var tocSearch = document.getElementById('tocSearch');
@@ -2260,33 +2254,6 @@ body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; bac
   var flipArea = document.getElementById('flipArea');
   var toast = document.getElementById('toast');
   var toastTimer = null;
-
-  var BLOCK = 12;
-  function blockStart() { return Math.floor(current / BLOCK) * BLOCK; }
-  function renderThumbs() {
-    thumbsWrap.innerHTML = '';
-    var start = blockStart(), end = Math.min(total, start + BLOCK);
-    for (var i = start; i < end; i++) {
-      var t = document.createElement('div');
-      t.className = 'thumb' + (i === current ? ' active' : '');
-      t.textContent = sheets[i].getAttribute('data-code');
-      t.addEventListener('click', (function(idx){ return function(){ go(idx); }; })(i));
-      thumbsWrap.appendChild(t);
-    }
-    if (start > 0) {
-      var pr = document.createElement('div');
-      pr.className = 'thumb'; pr.textContent = '‹ 上组';
-      pr.addEventListener('click', function(){ go(Math.max(0, start - BLOCK)); });
-      thumbsWrap.insertBefore(pr, thumbsWrap.firstChild);
-    }
-    if (end < total) {
-      var nx = document.createElement('div');
-      nx.className = 'thumb'; nx.textContent = '下组 ›';
-      nx.addEventListener('click', function(){ go(Math.min(total - 1, end)); });
-      thumbsWrap.appendChild(nx);
-    }
-    thumbsWrap.scrollLeft = thumbsWrap.scrollWidth;
-  }
 
   function showToast(msg, ms) {
     toast.textContent = msg;
@@ -2312,7 +2279,6 @@ body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; bac
     topCode.textContent = sheets[current].getAttribute('data-code');
     prevBtn.disabled = (current === 0);
     nextBtn.disabled = (current === total - 1);
-    renderThumbs();
   }
 
   // ?sku= 参数：扫码打开时直达对应产品并高亮提示
@@ -2578,7 +2544,6 @@ body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; bac
 
   sheets[0].classList.add('active', 'show');
   info.textContent = '1 / ' + total;
-  renderThumbs();
 })();
 </script>
 </body>
