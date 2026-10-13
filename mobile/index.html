@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#14161c">
-<title>LINE新目錄 · 手机版完整电子书（211个产品）· 扫码直达版</title>
+<title>LINE新目錄 · 手机版完整电子书（211个产品）· 扫码跳转版</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html, body { height:100%; }
@@ -65,6 +65,23 @@ body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; bac
 .toast { position:fixed; top:calc(env(safe-area-inset-top) + 14px); left:50%; transform:translateX(-50%); background:rgba(22,28,38,.96); color:#ffd166; border:1px solid #ffd166; padding:12px 22px; border-radius:24px; font-size:14px; font-weight:600; z-index:300; box-shadow:0 8px 28px rgba(0,0,0,.5); white-space:nowrap; display:none; }
 .toast.show { display:block; animation:toastIn .35s ease; }
 @keyframes toastIn { from { transform:translateX(-50%) translateY(-14px); opacity:0; } to { transform:translateX(-50%) translateY(0); opacity:1; } }
+
+.top-actions { display:flex; align-items:center; gap:8px; }
+.act-btn { flex:none; background:#2c3340; color:#ffd166; border:1px solid #ffd166; padding:8px 12px; border-radius:22px; font-size:13px; font-weight:600; cursor:pointer; min-height:44px; display:flex; align-items:center; gap:5px; }
+.act-btn svg { width:16px; height:16px; fill:currentColor; }
+.act-btn:active { background:#ffd166; color:#222; }
+.scan-overlay { position:fixed; inset:0; background:#000; z-index:400; display:none; flex-direction:column; }
+.scan-overlay.open { display:flex; }
+.scan-video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.scan-top { position:relative; z-index:6; display:flex; align-items:center; justify-content:space-between; padding:calc(env(safe-area-inset-top) + 12px) 16px 10px; }
+.scan-title { color:#fff; font-size:17px; font-weight:700; text-shadow:0 1px 4px #000; }
+.scan-close { background:rgba(255,255,255,.2); border:none; color:#fff; font-size:24px; line-height:1; width:44px; height:44px; border-radius:50%; cursor:pointer; }
+.scan-frame { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:76%; height:140px; border:2px solid #ffd166; border-radius:12px; box-shadow:0 0 0 2000px rgba(0,0,0,.45); z-index:4; }
+.scan-frame-note { position:absolute; left:0; right:0; bottom:-36px; text-align:center; color:#fff; font-size:13px; text-shadow:0 1px 4px #000; }
+.scan-status { position:relative; z-index:6; margin-top:auto; margin-bottom:calc(env(safe-area-inset-bottom) + 100px); text-align:center; color:#cfe3ff; font-size:14px; padding:10px 16px; text-shadow:0 1px 4px #000; }
+.scan-status.miss { color:#ffb3b3; }
+.scan-bottom { position:relative; z-index:6; display:flex; justify-content:center; gap:14px; padding:0 16px calc(env(safe-area-inset-bottom) + 20px); }
+.scan-retry { background:#ffd166; color:#222; border:none; font-size:15px; font-weight:700; padding:12px 30px; border-radius:26px; min-height:48px; cursor:pointer; }
 </style>
 </head>
 <body>
@@ -72,7 +89,10 @@ body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; bac
   <div class="topbar">
     <div class="brand">LINE ★★★★ 新目录</div>
     <div class="code" id="topCode">4712918004542</div>
-    <button id="tocBtn">&#9776; 目录</button>
+    <div class="top-actions">
+      <button id="scanBtn" class="act-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3L7.17 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2h-3.17L15 3H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg><span>扫码</span></button>
+      <button id="tocBtn">&#9776; 目录</button>
+    </div>
   </div>
   <div class="flip-area" id="flipArea">
     <div class="flipbook" id="flipbook">
@@ -2830,9 +2850,21 @@ body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; bac
     <button class="btn" id="nextBtn">&#8594;</button>
   </div>
   <div class="thumbs" id="thumbs"></div>
-  <div class="hint">左右滑动翻页 · 点击左右两侧也可翻页 · 点击"目录"搜索跳转 · 页内二维码可扫码直达</div>
+  <div class="hint">左右滑动翻页 · 点击两侧翻页 · 目录搜索跳转 · 扫码：相机扫描产品条码直达</div>
 </div>
 <div class="toast" id="toast"></div>
+<div class="scan-overlay" id="scanOverlay">
+  <video class="scan-video" id="scanVideo" playsinline muted autoplay></video>
+  <canvas id="scanCanvas" style="display:none"></canvas>
+  <div class="scan-top">
+    <div class="scan-title">扫描产品条码</div>
+    <button class="scan-close" id="scanClose">&times;</button>
+  </div>
+  <div class="scan-frame"><div class="scan-frame-note">将产品条码对准框内</div></div>
+  <div class="scan-status" id="scanStatus">正在启动相机…</div>
+  <div class="scan-bottom"><button class="scan-retry" id="scanRetry">重新扫码</button></div>
+</div>
+
 
 <div class="toc-overlay" id="tocOverlay">
   <div class="toc-head">
@@ -2936,6 +2968,196 @@ body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; bac
     }
     showToast('未找到条码 ' + sku, 2600);
   })();
+
+
+  // ===== 相机扫码跳转 =====
+  var scanOverlay = document.getElementById('scanOverlay');
+  var scanVideo = document.getElementById('scanVideo');
+  var scanCanvas = document.getElementById('scanCanvas');
+  var scanStatus = document.getElementById('scanStatus');
+  var scanClose = document.getElementById('scanClose');
+  var scanRetry = document.getElementById('scanRetry');
+  var scanBtn = document.getElementById('scanBtn');
+  var scanStream = null, scanActive = false, scanTimer = null, scanDetector = null;
+  var scanMissTimer = null;
+
+  // 降级解码：EAN-13 编码表
+  var EAN_L = ['0001101','0011001','0010011','0111101','0100011','0110001','0101111','0111011','0110111','0001011'];
+  var EAN_G = ['0100111','0110011','0011011','0100001','0011101','0111001','0000101','0010001','0001001','0010111'];
+  var EAN_R = ['1110010','1100110','1101100','1000010','1011100','1001110','1010000','1000100','1001000','1110100'];
+  var EAN_PARITY = ['LLLLLL','LLGLGG','LLGGLG','LLGGGL','LGLLGG','LGGLLG','LGGGLL','LGLGLG','LGLGGL','LGGLGL'];
+
+  function normBarcode(t) { return String(t || '').replace(/[^0-9]/g, ''); }
+
+  function decodeEAN13Data(data, w) {
+    var h = data.length / (w * 4);
+    var rows = [];
+    var y0 = Math.floor(h * 0.42), y1 = Math.floor(h * 0.58);
+    if (y1 <= y0) y1 = y0 + 1;
+    for (var y = y0; y < y1; y += Math.max(1, Math.floor(h * 0.03))) rows.push(y);
+    if (!rows.length) return null;
+    var n = rows.length, line = new Array(w);
+    for (var x = 0; x < w; x++) {
+      var s = 0;
+      for (var k = 0; k < n; k++) {
+        var idx = (rows[k] * w + x) * 4;
+        s += data[idx] * 0.299 + data[idx + 1] * 0.587 + data[idx + 2] * 0.114;
+      }
+      line[x] = s / n;
+    }
+    var mn = Infinity, mx = -Infinity;
+    for (var x = 0; x < w; x++) { if (line[x] < mn) mn = line[x]; if (line[x] > mx) mx = line[x]; }
+    if (mx - mn < 24) return null;
+    var th = (mn + mx) / 2;
+    var bin = new Array(w);
+    for (var x = 0; x < w; x++) bin[x] = line[x] >= th ? 1 : 0;
+    var runs = [], cur = bin[0], cnt = 1;
+    for (var x = 1; x < w; x++) { if (bin[x] === cur) cnt++; else { runs.push([cur, cnt]); cur = bin[x]; cnt = 1; } }
+    runs.push([cur, cnt]);
+    for (var i = 0; i < runs.length - 92; i++) {
+      if (runs[i][0] !== 1 || runs[i + 1][0] !== 0 || runs[i + 2][0] !== 1) continue;
+      var a = runs[i][1], b = runs[i + 1][1], c = runs[i + 2][1];
+      var m = (a + b + c) / 3;
+      if (m < 1.2) continue;
+      if (Math.abs(a - m) / m > 0.55 || Math.abs(b - m) / m > 0.55 || Math.abs(c - m) / m > 0.55) continue;
+      var bits = '';
+      for (var j = i; j < runs.length && bits.length < 96; j++) {
+        var rw = Math.round(runs[j][1] / m);
+        if (rw < 1) rw = 1;
+        if (rw > 6) rw = 6;
+        for (var k2 = 0; k2 < rw; k2++) bits += runs[j][0];
+      }
+      if (bits.length < 95) continue;
+      bits = bits.slice(0, 95);
+      if (bits.slice(0, 3) !== '101' || bits.slice(45, 50) !== '01010' || bits.slice(92) !== '101') continue;
+      var left = bits.slice(3, 45), right = bits.slice(50, 92);
+      var first = null, digitsL = [];
+      for (var pd = 0; pd < 10; pd++) {
+        var ok = true, digs = [];
+        for (var d = 0; d < 6; d++) {
+          var seg = left.slice(d * 7, (d + 1) * 7);
+          var found = -1;
+          if (EAN_PARITY[pd][d] === 'L') { for (var t = 0; t < 10; t++) if (EAN_L[t] === seg) { found = t; break; } }
+          else { for (var t = 0; t < 10; t++) if (EAN_G[t] === seg) { found = t; break; } }
+          if (found < 0) { ok = false; break; }
+          digs.push(found);
+        }
+        if (ok) { first = pd; digitsL = digs; break; }
+      }
+      if (first === null) continue;
+      var digitsR = [], rok = true;
+      for (var d = 0; d < 6; d++) {
+        var seg = right.slice(d * 7, (d + 1) * 7);
+        var found = -1;
+        for (var t = 0; t < 10; t++) if (EAN_R[t] === seg) { found = t; break; }
+        if (found < 0) { rok = false; break; }
+        digitsR.push(found);
+      }
+      if (!rok) continue;
+      var num = '' + first + digitsL.join('') + digitsR.join('');
+      if (num.length !== 13) continue;
+      var s = 0;
+      for (var x2 = 0; x2 < 12; x2++) s += (x2 % 2 === 0 ? 1 : 3) * parseInt(num[x2], 10);
+      var check = (10 - (s % 10)) % 10;
+      if (check !== parseInt(num[12], 10)) continue;
+      return num;
+    }
+    return null;
+  }
+
+  function handleBarcode(raw) {
+    var n = normBarcode(raw);
+    if (!n) return false;
+    for (var i = 0; i < total; i++) {
+      if (sheets[i].getAttribute('data-code') === n) {
+        stopScan();
+        go(i);
+        var s = sheets[i];
+        s.classList.remove('flash'); void s.offsetWidth; s.classList.add('flash');
+        showToast('已识别产品 ' + n, 3200);
+        return true;
+      }
+    }
+    scanStatus.textContent = '未找到对应产品 ' + n;
+    scanStatus.classList.add('miss');
+    if (scanMissTimer) clearTimeout(scanMissTimer);
+    scanMissTimer = setTimeout(function() {
+      scanStatus.classList.remove('miss');
+      scanStatus.textContent = '识别中…对准条码保持稳定';
+    }, 1800);
+    return false;
+  }
+
+  function scanTick() {
+    if (!scanActive) return;
+    var vw = scanVideo.videoWidth, vh = scanVideo.videoHeight;
+    if (vw > 0) {
+      var cw = Math.min(480, vw), ch = Math.floor(cw * vh / vw);
+      scanCanvas.width = cw; scanCanvas.height = ch;
+      var ctx = scanCanvas.getContext('2d', { willReadFrequently: true });
+      ctx.drawImage(scanVideo, 0, 0, cw, ch);
+      if (scanDetector) {
+        scanDetector.detect(scanCanvas).then(function(codes) {
+          if (!scanActive) return;
+          for (var i = 0; i < codes.length; i++) {
+            if (codes[i].rawValue && handleBarcode(codes[i].rawValue)) return;
+          }
+        }).catch(function() {});
+      } else {
+        try {
+          var imgd = ctx.getImageData(0, 0, cw, ch);
+          var code = decodeEAN13Data(imgd.data, cw);
+          if (code && handleBarcode(code)) return;
+        } catch (e) {}
+      }
+    }
+    scanTimer = setTimeout(scanTick, 260);
+  }
+
+  function stopScan() {
+    scanActive = false;
+    if (scanTimer) { clearTimeout(scanTimer); scanTimer = null; }
+    if (scanStream) { scanStream.getTracks().forEach(function(t) { t.stop(); }); scanStream = null; }
+    scanVideo.srcObject = null;
+    scanOverlay.classList.remove('open');
+  }
+
+  function openScan() {
+    if (scanStream) { scanStream.getTracks().forEach(function(t) { t.stop(); }); scanStream = null; }
+    scanOverlay.classList.add('open');
+    scanStatus.classList.remove('miss');
+    scanStatus.textContent = '正在启动相机…';
+    scanActive = false;
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      scanStatus.textContent = '当前浏览器不支持相机，请在手机浏览器中打开';
+      scanStatus.classList.add('miss');
+      return;
+    }
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } } }).then(function(stream) {
+      if (!scanOverlay.classList.contains('open')) { stream.getTracks().forEach(function(t) { t.stop(); }); return; }
+      scanStream = stream;
+      scanVideo.srcObject = stream;
+      scanVideo.play().then(function() {
+        scanActive = true;
+        scanStatus.textContent = '识别中…对准条码保持稳定';
+        scanTick();
+      }).catch(function() {});
+    }).catch(function(err) {
+      scanStatus.textContent = '无法使用相机：请在浏览器设置中允许相机权限后重试';
+      scanStatus.classList.add('miss');
+    });
+  }
+
+  try {
+    if ('BarcodeDetector' in window) {
+      scanDetector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'qr_code'] });
+    }
+  } catch (e) { scanDetector = null; }
+
+  scanBtn.addEventListener('click', openScan);
+  scanClose.addEventListener('click', stopScan);
+  scanRetry.addEventListener('click', openScan);
+  scanOverlay.addEventListener('click', function(e) { if (e.target === scanOverlay) stopScan(); });
 
   prevBtn.addEventListener('click', function(){ go(current - 1); });
   nextBtn.addEventListener('click', function(){ go(current + 1); });
