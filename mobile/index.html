@@ -1897,6 +1897,7 @@ body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; bac
       var img = zb.closest('.pic').querySelector('img');
       viewerImg.src = img.src;
       viewerImg.style.transform = '';
+      if (window.__viewerReset) window.__viewerReset();
       viewerOverlay.classList.add('open');
       return;
     }
@@ -1905,16 +1906,67 @@ body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; bac
     }
   });
   (function() {
-    var dragging = false, sx = 0, sy = 0;
-    viewerOverlay.addEventListener('pointerdown', function(e) {
-      if (e.target === viewerImg) { dragging = true; sx = e.clientX; sy = e.clientY; }
+    var vImg = viewerImg;
+    var st = { x: 0, y: 0, s: 1 };
+    var dragging = false, sx = 0, sy = 0, ox = 0, oy = 0;
+    var pinchDist = 0, pinchS = 1;
+
+    function apply() {
+      vImg.style.transform = 'translate(' + st.x + 'px,' + st.y + 'px) scale(' + st.s + ')';
+    }
+    function resetViewer() {
+      st.x = 0; st.y = 0; st.s = 1; pinchDist = 0; dragging = false;
+      vImg.style.transform = '';
+    }
+    window.__viewerReset = resetViewer;
+
+    viewerOverlay.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      var t = e.touches;
+      if (t.length === 1) {
+        dragging = true; sx = t[0].clientX; sy = t[0].clientY; ox = st.x; oy = st.y;
+      } else if (t.length >= 2) {
+        dragging = false;
+        pinchDist = Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+        pinchS = st.s;
+      }
+    }, { passive: false });
+
+    viewerOverlay.addEventListener('touchmove', function(e) {
+      e.preventDefault();
+      var t = e.touches;
+      if (t.length >= 2 && pinchDist > 0) {
+        var d = Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+        st.s = Math.min(5, Math.max(1, pinchS * d / pinchDist));
+        apply();
+      } else if (t.length === 1 && dragging) {
+        st.x = ox + (t[0].clientX - sx);
+        st.y = oy + (t[0].clientY - sy);
+        apply();
+      }
+    }, { passive: false });
+
+    function touchEnd(e) {
+      if (e.touches.length === 0) {
+        dragging = false; pinchDist = 0;
+      } else if (e.touches.length === 1) {
+        dragging = true;
+        sx = e.touches[0].clientX; sy = e.touches[0].clientY; ox = st.x; oy = st.y;
+      }
+    }
+    viewerOverlay.addEventListener('touchend', touchEnd);
+    viewerOverlay.addEventListener('touchcancel', touchEnd);
+
+    viewerOverlay.addEventListener('mousedown', function(e) {
+      if (e.target === viewerImg) { dragging = true; sx = e.clientX; sy = e.clientY; ox = st.x; oy = st.y; }
     });
-    window.addEventListener('pointermove', function(e) {
+    window.addEventListener('mousemove', function(e) {
       if (!dragging) return;
-      viewerImg.style.transform = 'translate(' + (e.clientX - sx) + 'px,' + (e.clientY - sy) + 'px)';
+      st.x = ox + (e.clientX - sx);
+      st.y = oy + (e.clientY - sy);
+      apply();
     });
-    window.addEventListener('pointerup', function() { dragging = false; });
-    window.addEventListener('pointercancel', function() { dragging = false; });
+    window.addEventListener('mouseup', function() { dragging = false; });
   })();
 
 
