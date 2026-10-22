@@ -1891,6 +1891,10 @@ body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; bac
   var viewerOverlay = document.getElementById('viewerOverlay');
   var viewerImg = document.getElementById('viewerImg');
   var viewerClose = document.getElementById('viewerClose');
+  function closeViewer() {
+    viewerOverlay.classList.remove('open');
+    if (window.__viewerReset) window.__viewerReset();
+  }
   document.addEventListener('click', function(e) {
     var zb = e.target.closest('.zoom-btn');
     if (zb) {
@@ -1902,7 +1906,7 @@ body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; bac
       return;
     }
     if (e.target === viewerOverlay || e.target === viewerClose) {
-      viewerOverlay.classList.remove('open');
+      closeViewer();
     }
   });
   (function() {
@@ -1921,6 +1925,7 @@ body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; bac
     window.__viewerReset = resetViewer;
 
     viewerOverlay.addEventListener('touchstart', function(e) {
+      if (e.target === viewerClose || e.target === viewerOverlay) return;
       e.preventDefault();
       var t = e.touches;
       if (t.length === 1) {
@@ -1933,6 +1938,7 @@ body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; bac
     }, { passive: false });
 
     viewerOverlay.addEventListener('touchmove', function(e) {
+      if (e.target === viewerClose || e.target === viewerOverlay) return;
       e.preventDefault();
       var t = e.touches;
       if (t.length >= 2 && pinchDist > 0) {
@@ -1956,6 +1962,8 @@ body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; bac
     }
     viewerOverlay.addEventListener('touchend', touchEnd);
     viewerOverlay.addEventListener('touchcancel', touchEnd);
+    viewerClose.addEventListener('touchend', function(e) { e.stopPropagation(); closeViewer(); });
+    viewerClose.addEventListener('click', function(e) { e.stopPropagation(); closeViewer(); });
 
     viewerOverlay.addEventListener('mousedown', function(e) {
       if (e.target === viewerImg) { dragging = true; sx = e.clientX; sy = e.clientY; ox = st.x; oy = st.y; }
