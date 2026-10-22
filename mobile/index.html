@@ -64,6 +64,8 @@ body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; bac
 #viewerHint { position:fixed; bottom:calc(env(safe-area-inset-bottom) + 14px); left:50%; transform:translateX(-50%); color:#9aa4b2; font-size:12px; }
 
 .top-actions { display:flex; align-items:center; gap:8px; }
+/* 恢复扫码/目录按钮：删除 <div class="top-actions hidden"> 中的 hidden 类即可（功能代码已完整保留） */
+.top-actions.hidden { display:none !important; }
 .act-btn { flex:none; background:#2c3340; color:#ffd166; border:1px solid #ffd166; padding:8px 12px; border-radius:22px; font-size:13px; font-weight:600; cursor:pointer; min-height:44px; display:flex; align-items:center; gap:5px; }
 .act-btn svg { width:16px; height:16px; fill:currentColor; }
 .act-btn:active { background:#ffd166; color:#222; }
@@ -86,7 +88,7 @@ body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; bac
   <div class="topbar">
     <div class="brand">樂麥產品目錄</div>
     <div class="code" id="topCode">4712918004542</div>
-    <div class="top-actions">
+    <div class="top-actions hidden">
       <button id="scanBtn" class="act-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3L7.17 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2h-3.17L15 3H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg><span>扫码</span></button>
       <button id="tocBtn">&#9776; 目录</button>
     </div>
