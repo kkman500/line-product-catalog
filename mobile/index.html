@@ -5651,7 +5651,14 @@ body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; bac
   nextBtn.addEventListener('click', function(){ go(current + 1); });
   document.addEventListener('click', function(e){
     var navBtn = e.target.closest('.page-nav button');
-    if (navBtn) { go(current + parseInt(navBtn.getAttribute('data-dir'), 10)); }
+    if (navBtn) {
+      var dir = parseInt(navBtn.getAttribute('data-dir'), 10);
+      if (current === 0 && dir === 1) {
+        go(1 + Math.floor(Math.random() * (total - 1)));
+      } else {
+        go(current + dir);
+      }
+    }
   });
   document.addEventListener('keydown', function(e){
     if (e.key === 'ArrowRight' || e.key === 'PageDown') go(current + 1);
