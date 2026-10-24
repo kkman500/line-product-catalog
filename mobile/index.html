@@ -11,7 +11,7 @@ html, body { height:100%; }
 body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; background:linear-gradient(160deg,#2b2f3a,#14161c); color:#fff; overflow:hidden; touch-action:manipulation; }
 .stage { display:flex; flex-direction:column; height:100vh; height:100dvh; padding:env(safe-area-inset-top) 10px env(safe-area-inset-bottom); }
 .topbar { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 4px 10px; }
-.brand { font-size:12px; color:#9aa4b2; letter-spacing:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.brand { font-size:12px; font-weight:bold; color:#ff1a1a; letter-spacing:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .code { font-size:15px; font-weight:700; color:#ffd166; letter-spacing:1px; white-space:nowrap; }
 #tocBtn { flex:none; background:#2c3340; color:#ffd166; border:1px solid #ffd166; padding:8px 16px; border-radius:22px; font-size:14px; font-weight:600; cursor:pointer; min-height:40px; }
 .flip-area { flex:1; min-height:0; position:relative; perspective:1800px; }
@@ -96,7 +96,7 @@ body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; bac
 .intro-list li::before { content:'·'; position:absolute; left:2px; color:#b33a2b; font-weight:800; }
 .intro-slogan { margin-top:16px; font-size:14px; font-weight:800; color:#b33a2b; text-align:center; padding-top:12px; border-top:1px dashed #d8d3c8; }
 /* 說明首頁統一 19px 排版（僅說明頁，不影響其它頁面） */
-.intro-page .page-head .code-tag { font-size:19px; letter-spacing:.5px; }
+.intro-page .page-head .code-tag { font-size:12px; font-weight:bold; letter-spacing:.5px; white-space:nowrap; color:#ff1a1a; }
 .intro-page .intro-body { padding:9px 10px 4px; }
 .intro-page .intro-hello { font-size:19px; line-height:1.4; margin-bottom:8px; }
 .intro-page .intro-h { font-size:19px; margin:10px 0 4px; }
@@ -110,7 +110,7 @@ body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; bac
 <body>
 <div class="stage">
   <div class="topbar">
-    <div class="brand">樂麥產品目錄</div>
+    <div class="brand">樂麥產品目錄 (02)2270-9022</div>
     <div class="code" id="topCode">4712918004542</div>
     <div class="top-actions hidden">
       <button id="scanBtn" class="act-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3L7.17 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2h-3.17L15 3H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg><span>扫码</span></button>
@@ -122,7 +122,7 @@ body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; bac
       <div class="sheet" data-sheet="0" data-imgs="0">
   <div class="page-inner intro-page">
     <div class="page-head">
-      <span class="code-tag">樂麥產品目錄・手機版</span>
+      <span class="code-tag">樂麥產品目錄・手機版 (02)2270-9022</span>
     </div>
     <div class="intro-body">
       <p class="intro-hello">歡迎瀏覽線上手機版，一機在手、隨時翻閱。</p>
